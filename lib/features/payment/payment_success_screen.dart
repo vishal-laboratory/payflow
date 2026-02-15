@@ -56,17 +56,16 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
     return SizedBox(
       height: 56,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Row(
           children: [
             // Back Button
             GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                child: const Icon(
+              child: const SizedBox(
+                width: 24,
+                height: 24,
+                child: Icon(
                   LucideIcons.arrowLeft,
                   color: AppColors.textPrimary,
                   size: 24,
@@ -74,29 +73,27 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
               ),
             ),
             const Spacer(),
-            // Download Button
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                child: const Icon(
-                  LucideIcons.download,
-                  color: AppColors.textPrimary,
-                  size: 24,
-                ),
-              ),
-            ),
+            // // Download Button
+            // GestureDetector(
+            //   onTap: () {},
+            //   child: const SizedBox(
+            //     width: 24,
+            //     height: 24,
+            //     child: Icon(
+            //       LucideIcons.download,
+            //       color: AppColors.textPrimary,
+            //       size: 24,
+            //     ),
+            //   ),
+            // ),
             const SizedBox(width: 8),
             // Menu Button
             GestureDetector(
               onTap: () {},
-              child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                child: const Icon(
+              child: const SizedBox(
+                width: 24,
+                height: 24,
+                child: Icon(
                   LucideIcons.moreVertical,
                   color: AppColors.textPrimary,
                   size: 24,
@@ -118,7 +115,6 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
           height: 54,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF464646), width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: widget.details.payeeColor.withValues(alpha: 0.2),
@@ -127,20 +123,38 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
               ),
             ],
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: widget.details.payeeColor,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              widget.details.payeeInitial,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-              ),
-            ),
+          child: ClipOval(
+            child: widget.details.payeeImageUrl == null
+                ? Container(
+                    color: widget.details.payeeColor,
+                    alignment: Alignment.center,
+                    child: Text(
+                      widget.details.payeeInitial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                      ),
+                    ),
+                  )
+                : Image.network(
+                    widget.details.payeeImageUrl!,
+                    width: 54,
+                    height: 54,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: widget.details.payeeColor,
+                      alignment: Alignment.center,
+                      child: Text(
+                        widget.details.payeeInitial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
           ),
         ),
         const SizedBox(height: 12),
@@ -181,12 +195,36 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
           ],
         ),
         const SizedBox(height: 20),
+        // Pay again button
+        SizedBox(
+          width: 180,
+          height: 48,
+          child: ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Pay again',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
         // Status
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset('assets/status.svg', width: 18, height: 18),
+            SvgPicture.asset('assets/status.svg', width: 16, height: 16),
             const SizedBox(width: 4),
             Text(
               widget.details.statusText,
@@ -197,6 +235,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: 220,
+          height: 1,
+          color: const Color(0xFFE0E0E0),
         ),
         const SizedBox(height: 12),
         // Date/Time
@@ -246,14 +290,29 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         color: Colors.white,
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        widget.details.bankLogoLabel,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: widget.details.bankLogoColor,
-                        ),
-                      ),
+                      child: widget.details.bankLogoUrl == null
+                          ? Text(
+                              widget.details.bankLogoLabel,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: widget.details.bankLogoColor,
+                              ),
+                            )
+                          : Image.network(
+                              widget.details.bankLogoUrl!,
+                              width: 46,
+                              height: 28,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Text(
+                                widget.details.bankLogoLabel,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: widget.details.bankLogoColor,
+                                ),
+                              ),
+                            ),
                     ),
                     const SizedBox(width: 16),
                     // Bank Name
@@ -262,7 +321,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.details.bankName,
+                            '${widget.details.bankName} ••••${widget.details.bankLast4}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -272,22 +331,15 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                               letterSpacing: 1,
                             ),
                           ),
-                          Text(
-                            widget.details.bankLast4,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
                         ],
                       ),
                     ),
                     // Chevron
-                    Transform.rotate(
-                      angle: _showBankDetails ? 1.5708 : 0,
+                    AnimatedRotation(
+                      turns: _showBankDetails ? 0 : 0.25,
+                      duration: const Duration(milliseconds: 150),
                       child: const Icon(
-                        Icons.chevron_right,
+                        Icons.keyboard_arrow_down,
                         color: AppColors.textSecondary,
                         size: 24,
                       ),
@@ -299,31 +351,38 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
             if (_showBankDetails) ...[
               Container(height: 1, color: const Color(0xFFC6C6C6)),
               // Bank Details Content
-              Padding(
-                padding: const EdgeInsets.all(16),
+              Container(
+                width: double.infinity,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildDetailItem(
                       'UPI transaction ID',
                       widget.details.upiTxnId,
+                      bold: true,
                     ),
                     const SizedBox(height: 20),
                     _buildDetailItem(
                       'To: ${widget.details.toName}',
                       'Google Pay • ${widget.details.toVpa}',
                       isSmall: true,
+                      bold: true,
                     ),
                     const SizedBox(height: 20),
                     _buildDetailItem(
                       'From: ${widget.details.fromName}',
                       'Google Pay • ${widget.details.fromVpa}',
                       isSmall: true,
+                      bold: true,
                     ),
                     const SizedBox(height: 20),
                     _buildDetailItem(
                       'Google transaction ID',
                       widget.details.googleTxnId,
+                      bold: true,
                     ),
                   ],
                 ),
@@ -335,15 +394,15 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
     );
   }
 
-  Widget _buildDetailItem(String label, String value, {bool isSmall = false}) {
+  Widget _buildDetailItem(String label, String value, {bool isSmall = false, bool bold = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w400,
+            fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
             color: AppColors.textPrimary,
           ),
         ),
@@ -353,7 +412,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
           style: TextStyle(
             fontSize: isSmall ? 12 : 12,
             fontWeight: FontWeight.w400,
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary,
             letterSpacing: isSmall ? 1 : 0,
           ),
         ),
@@ -364,13 +423,6 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   Widget _buildUpiSection() {
     return Column(
       children: [
-        // UPI Logo
-        SizedBox(
-          height: 42,
-          width: 58,
-          child: Image.asset('assets/upi_logo.png', fit: BoxFit.contain),
-        ),
-        const SizedBox(height: 16),
         // Payment Message
         Text(
           'Payments may take up to 3 working days to be\nreflected in your account',
@@ -380,6 +432,21 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
             fontWeight: FontWeight.w400,
             color: AppColors.textPrimary,
             height: 1.33,
+          ),
+        ),
+        const SizedBox(height: 12),
+        // UPI Logo with white background so transparent cutouts appear white
+        Center(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Image.asset(
+              'assets/poweredbyupi.png',
+              height: 28,
+            ),
           ),
         ),
       ],
@@ -399,7 +466,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-      height: 100,
+      height: 80,
       child: Row(
         children: [
           // Help Button
