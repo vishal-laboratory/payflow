@@ -12,10 +12,23 @@ class PayFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PayFlow',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+      theme: ThemeData(
+        useMaterial3: true,
+        fontFamily: 'GoogleSans',
+        scaffoldBackgroundColor: Colors.white,
+
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1A73E8),
+          primary: const Color(0xFF1A73E8),
+        ),
+
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Color(0xFF202124)),
+          bodyMedium: TextStyle(color: Color(0xFF202124)),
+        ),
+      ),
+    home: const HomeScreen(),
     );
   }
 }

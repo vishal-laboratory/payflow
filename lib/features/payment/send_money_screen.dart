@@ -78,20 +78,20 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           // Recipient Info
           Hero(
             tag: 'avatar_${widget.contact.name}',
             child: Avatar(
               label: widget.contact.name,
               gradient: widget.contact.gradient,
-              size: 72,
+              size: 64,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             'To ${widget.contact.name}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
 
           Expanded(
@@ -108,7 +108,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                         const Text(
                           '₹',
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
@@ -117,7 +117,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                         Text(
                           amount,
                           style: const TextStyle(
-                            fontSize: 56,
+                            fontSize: 48,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
@@ -125,9 +125,10 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 4),
                   const Text(
                     'Enter amount',
-                    style: TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                   ),
                 ],
               ),
@@ -139,7 +140,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: SizedBox(
               width: double.infinity,
-              height: 56,
+              height: 52,
               child: ElevatedButton(
                 onPressed: isLoading ? null : _processPayment,
                 style: ElevatedButton.styleFrom(
@@ -168,7 +169,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
             ),
           ),
 
-          const Spacer(),
+          const SizedBox(height: 8),
 
           // Keypad
           Numpad(

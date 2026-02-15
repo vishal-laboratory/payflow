@@ -7,7 +7,9 @@ class TransactionTheme {
   static const Color borderLight = Color(0xFFC6C6C6);
   static const Color borderFaint = Color(0xFFEAEAEA);
   static const Color borderDark = Color(0xFF909090);
-  static const Color successGreen = Color(0xFF1E8D3E); // From palette
+ // static const Color successGreen = Color(0xFF1E8D3E); #191919  // From palette
+  static const Color successGreen = Color(0xFF191919);
+
   static const Color background = Colors.white;
 
   // Typography
