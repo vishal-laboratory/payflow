@@ -4,7 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/avatar.dart';
 import '../../core/widgets/action_card.dart';
+import '../../core/data/contact_store.dart';
 import '../../core/data/mock_data.dart';
+import '../../core/data/transaction_store.dart';
+import 'edit_mock_payment_details_screen.dart';
+import 'people_chat_screen.dart';
+import '../payment/qr_scanner_screen.dart';
 import '../payment/send_money_screen.dart';
 import '../recharge/mobile_recharge_screen.dart';
 import '../history/history_screen.dart';
@@ -164,7 +169,12 @@ class HomeScreen extends StatelessWidget {
             children: [
               _buildBalanceAction(context, LucideIcons.send, 'Send'),
               _buildBalanceAction(context, LucideIcons.download, 'Receive'),
-              _buildBalanceAction(context, LucideIcons.scanLine, 'Scan'),
+              _buildBalanceAction(
+                context,
+                LucideIcons.scanLine,
+                'Scan',
+                onTap: () => _openQrScanner(context),
+              ),
             ],
           ),
         ],
@@ -176,32 +186,94 @@ class HomeScreen extends StatelessWidget {
     BuildContext context,
     IconData icon,
     String label,
+    {VoidCallback? onTap}
   ) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(14),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.primary,
+              size: 24,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-            size: 24,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  void _openQrScanner(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+    );
+  }
+
+  Future<void> _onContactLongPress(
+    BuildContext context,
+    Contact contact, {
+    required bool isSavedContact,
+  }) async {
+    if (!isSavedContact) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Default contact cannot be removed'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final shouldRemove = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text('Remove from People'),
+                onTap: () => Navigator.pop(sheetContext, true),
+              ),
+              ListTile(
+                leading: const Icon(Icons.close),
+                title: const Text('Cancel'),
+                onTap: () => Navigator.pop(sheetContext, false),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (shouldRemove == true) {
+      await ContactStore.removeSavedContact(contact.name);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${contact.name} removed from People'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildSectionHeader(
@@ -279,121 +351,200 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildContactsList() {
-    return SizedBox(
-      height: 100,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        scrollDirection: Axis.horizontal,
-        itemCount: MockData.contacts.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (context, index) {
-          final contact = MockData.contacts[index];
-          return Column(
-            children: [
-              GestureDetector(
-                // Wrap Avatar in GestureDetector
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SendMoneyScreen(contact: contact),
+    return ValueListenableBuilder<int>(
+      valueListenable: ContactStore.changes,
+      builder: (context, _, __) {
+        final allContacts = <Contact>[
+          ...MockData.contacts,
+          ...ContactStore.savedContacts,
+        ];
+
+        return SizedBox(
+          height: 100,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemCount: allContacts.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              if (index == allContacts.length) {
+                return Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditMockPaymentDetailsScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.surface,
+                          border: Border.all(color: AppColors.borderLight, width: 1.5),
+                        ),
+                        child: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: AppColors.primary,
+                          size: 32,
+                        ),
+                      ),
                     ),
-                  );
-                },
-                child: Avatar(
-                  label: contact.name,
-                  gradient: contact.gradient,
-                  size: 56,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                contact.name,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'More',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                );
+              }
+
+              final contact = allContacts[index];
+              final isSavedContact = index >= MockData.contacts.length;
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PeopleChatScreen(contact: contact),
+                        ),
+                      );
+                    },
+                    onLongPress: () {
+                      _onContactLongPress(
+                        context,
+                        contact,
+                        isSavedContact: isSavedContact,
+                      );
+                    },
+                    child: Avatar(
+                      label: contact.name,
+                      gradient: contact.gradient,
+                      size: 56,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    contact.name,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
   Widget _buildTransactionsList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        final transaction = MockData.transactions[index];
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
+    return SliverToBoxAdapter(
+      child: ValueListenableBuilder<int>(
+        valueListenable: TransactionStore.changes,
+        builder: (context, _, __) {
+          final combined = <_HomeTransactionEntry>[
+            ...TransactionStore.allRecords.map(
+              (record) => _HomeTransactionEntry(
+                title: 'To ${record.receiverName}',
+                date: TransactionStore.formatForHistory(record.createdAt),
+                amount: record.amount,
+                isCredit: false,
+              ),
+            ),
+            ...MockData.transactions.map(
+              (transaction) => _HomeTransactionEntry(
+                title: transaction.title,
+                date: transaction.date,
+                amount: transaction.amount,
+                isCredit: transaction.isCredit,
+              ),
+            ),
+          ];
+
+          return Column(
+            children: List.generate(combined.length, (index) {
+              final transaction = combined[index];
+              return Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: transaction.isCredit
-                          ? AppColors.success.withOpacity(0.1)
-                          : AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      transaction.isCredit
-                          ? LucideIcons.arrowDownLeft
-                          : LucideIcons.arrowUpRight,
-                      color: transaction.isCredit
-                          ? AppColors.success
-                          : AppColors.primary,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
                       children: [
-                        Text(
-                          transaction.title,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: transaction.isCredit
+                                ? AppColors.success.withOpacity(0.1)
+                                : AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            transaction.isCredit
+                                ? LucideIcons.arrowDownLeft
+                                : LucideIcons.arrowUpRight,
+                            color: transaction.isCredit
+                                ? AppColors.success
+                                : AppColors.primary,
+                            size: 22,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                transaction.title,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                transaction.date,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         Text(
-                          transaction.date,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
+                          '${transaction.isCredit ? '+' : '-'}₹${transaction.amount.toStringAsFixed(0)}',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: transaction.isCredit
+                                ? AppColors.success
+                                : AppColors.textPrimary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Text(
-                    '${transaction.isCredit ? '+' : '-'}₹${transaction.amount.toStringAsFixed(0)}',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: transaction.isCredit
-                          ? AppColors.success
-                          : AppColors.textPrimary,
+                  if (index < combined.length - 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Divider(
+                        height: 1,
+                        color: AppColors.borderLight,
+                      ),
                     ),
-                  ),
                 ],
-              ),
-            ),
-            if (index < MockData.transactions.length - 1)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(
-                  height: 1,
-                  color: AppColors.borderLight,
-                ),
-              ),
-          ],
-        );
-      }, childCount: MockData.transactions.length),
+              );
+            }),
+          );
+        },
+      ),
     );
   }
 
@@ -411,6 +562,8 @@ class HomeScreen extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (_) => const HistoryScreen()),
           );
+        } else if (index == 2) {
+          _openQrScanner(context);
         }
       },
       destinations: const [
@@ -437,4 +590,18 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+class _HomeTransactionEntry {
+  final String title;
+  final String date;
+  final double amount;
+  final bool isCredit;
+
+  const _HomeTransactionEntry({
+    required this.title,
+    required this.date,
+    required this.amount,
+    required this.isCredit,
+  });
 }

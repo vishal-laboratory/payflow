@@ -4,8 +4,9 @@ import '../theme/app_colors.dart';
 class Contact {
   final String name;
   final List<Color> gradient;
+  final String? upiId;
 
-  const Contact({required this.name, required this.gradient});
+  const Contact({required this.name, required this.gradient, this.upiId});
 }
 
 class Transaction {

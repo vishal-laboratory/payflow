@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/data/mock_data.dart';
+import '../../core/data/transaction_store.dart';
+import '../payment/models/payment_details.dart';
+import '../payment/payment_success_screen.dart';
 import '../transaction_details/presentation/pages/transaction_details_screen.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -15,63 +18,123 @@ class HistoryScreen extends StatelessWidget {
         title: const Text('Transaction History'),
         leading: BackButton(color: AppColors.textPrimary),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: MockData.transactions.length,
-        separatorBuilder: (context, index) => const Divider(),
-        itemBuilder: (context, index) {
-          final transaction = MockData.transactions[index];
-          return ListTile(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TransactionDetailsScreen(),
-                ),
-              );
-            },
-            contentPadding: EdgeInsets.zero,
-            leading: CircleAvatar(
-              backgroundColor: const Color(0xFFF3F6FC),
-              child: Icon(
-                transaction.isCredit
-                    ? LucideIcons.arrowDownLeft
-                    : LucideIcons.arrowUpRight,
-                color: transaction.isCredit
-                    ? AppColors.success
-                    : AppColors.textPrimary,
-                size: 20,
+      body: ValueListenableBuilder<int>(
+        valueListenable: TransactionStore.changes,
+        builder: (context, _, __) {
+          final combined = <_HistoryEntry>[
+            ...TransactionStore.allRecords.map(
+              (record) => _HistoryEntry(
+                title: 'To ${record.receiverName}',
+                date: TransactionStore.formatForHistory(record.createdAt),
+                amount: record.amount,
+                isCredit: false,
+                isPending: false,
+                paymentSnapshot: record.paymentSnapshot,
               ),
             ),
-            title: Text(
-              transaction.title,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+            ...MockData.transactions.map(
+              (transaction) => _HistoryEntry(
+                title: transaction.title,
+                date: transaction.date,
+                amount: transaction.amount,
+                isCredit: transaction.isCredit,
+                isPending: transaction.isPending,
+                paymentSnapshot: null,
+              ),
             ),
-            subtitle: Text(transaction.date),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${transaction.isCredit ? '+' : '-'}₹${transaction.amount.toStringAsFixed(0)}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+          ];
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: combined.length,
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              final transaction = combined[index];
+              return ListTile(
+                onTap: () {
+                  if (transaction.paymentSnapshot != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentSuccessScreen(
+                          details: PaymentDetails.fromSnapshot(
+                            transaction.paymentSnapshot!,
+                          ),
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionDetailsScreen(),
+                    ),
+                  );
+                },
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFFF3F6FC),
+                  child: Icon(
+                    transaction.isCredit
+                        ? LucideIcons.arrowDownLeft
+                        : LucideIcons.arrowUpRight,
                     color: transaction.isCredit
                         ? AppColors.success
                         : AppColors.textPrimary,
+                    size: 20,
                   ),
                 ),
-                if (transaction.isPending)
-                  const Text(
-                    'Processing',
-                    style: TextStyle(fontSize: 12, color: AppColors.googleBlue),
-                  ),
-              ],
-            ),
+                title: Text(
+                  transaction.title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(transaction.date),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${transaction.isCredit ? '+' : '-'}₹${transaction.amount.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: transaction.isCredit
+                            ? AppColors.success
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    if (transaction.isPending)
+                      const Text(
+                        'Processing',
+                        style: TextStyle(fontSize: 12, color: AppColors.googleBlue),
+                      ),
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
+}
+
+class _HistoryEntry {
+  final String title;
+  final String date;
+  final double amount;
+  final bool isCredit;
+  final bool isPending;
+  final Map<String, dynamic>? paymentSnapshot;
+
+  const _HistoryEntry({
+    required this.title,
+    required this.date,
+    required this.amount,
+    required this.isCredit,
+    required this.isPending,
+    required this.paymentSnapshot,
+  });
 }

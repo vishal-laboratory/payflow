@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'core/data/contact_store.dart';
+import 'core/data/transaction_store.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ContactStore.init();
+  await TransactionStore.init();
   runApp(const PayFlowApp());
 }
 

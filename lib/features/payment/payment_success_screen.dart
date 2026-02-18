@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../core/data/mock_payment_config.dart';
 import '../../core/theme/app_colors.dart';
 import 'models/payment_details.dart';
 
@@ -36,7 +37,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                     const SizedBox(height: 34),
                     // Bank Details Card
                     _buildBankDetailsCard(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 1),
                     // UPI Logo and Message
                     _buildUpiSection(),
                     const SizedBox(height: 16),
@@ -315,29 +316,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         color: Colors.white,
                       ),
                       alignment: Alignment.center,
-                      child: widget.details.bankLogoUrl == null
-                          ? Text(
-                              widget.details.bankLogoLabel,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: widget.details.bankLogoColor,
-                              ),
-                            )
-                          : Image.network(
-                              widget.details.bankLogoUrl!,
-                              width: 46,
-                              height: 28,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Text(
-                                widget.details.bankLogoLabel,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: widget.details.bankLogoColor,
-                                ),
-                              ),
-                            ),
+                      child: _buildBankLogo(),
                     ),
                     const SizedBox(width: 16),
                     // Bank Name
@@ -417,6 +396,33 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBankLogo() {
+    final logoPath = MockPaymentConfig.logoForBankName(widget.details.bankName);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final logoWidth = constraints.maxWidth * 0.84;
+        final logoHeight = constraints.maxHeight * 0.82;
+
+        return Center(
+          child: Image.asset(
+            logoPath,
+            width: logoWidth,
+            height: logoHeight,
+            fit: BoxFit.fitHeight,
+            alignment: Alignment.center,
+            filterQuality: FilterQuality.high,
+            isAntiAlias: true,
+            errorBuilder: (_, __, ___) => SizedBox(
+              width: logoWidth,
+              height: logoHeight,
+            ),
+          ),
+        );
+      },
     );
   }
 

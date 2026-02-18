@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/avatar.dart';
 import '../../core/widgets/numpad.dart';
+import '../../core/data/transaction_store.dart';
 import 'payment_success_screen.dart';
 import 'models/payment_details.dart';
 import '../../core/data/mock_data.dart';
@@ -54,14 +55,20 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 2));
 
+    final details = PaymentDetails.fromContact(widget.contact, amount);
+    final paidAmount = double.tryParse(amount) ?? 0;
+    TransactionStore.addPayment(
+      receiverName: widget.contact.name,
+      amount: paidAmount,
+      paymentSnapshot: details.toSnapshot(),
+    );
+
     if (mounted) {
       setState(() => isLoading = false);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PaymentSuccessScreen(
-            details: PaymentDetails.fromContact(widget.contact, amount),
-          ),
+          builder: (context) => PaymentSuccessScreen(details: details),
         ),
       );
     }
@@ -93,6 +100,18 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
             'To ${widget.contact.name}',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
+          if (widget.contact.upiId != null && widget.contact.upiId!.trim().isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                widget.contact.upiId!,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
 
           Expanded(
             child: Center(
@@ -145,6 +164,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 onPressed: isLoading ? null : _processPayment,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.googleBlue,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),
@@ -163,6 +183,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
               ),
