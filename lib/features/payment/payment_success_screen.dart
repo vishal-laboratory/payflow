@@ -30,10 +30,10 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 10),
                     // Recipient Section
                     _buildRecipientSection(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 34),
                     // Bank Details Card
                     _buildBankDetailsCard(),
                     const SizedBox(height: 32),
@@ -82,7 +82,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 child: Icon(
                   LucideIcons.flag,
                   color: AppColors.textPrimary,
-                  size: 18,
+                  size: 17,
                 ),
               ),
             ),
@@ -111,8 +111,8 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
       children: [
         // Avatar with Border
         Container(
-          width: 64,
-          height: 64,
+          width: 58,
+          height: 58,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             boxShadow: [
@@ -133,7 +133,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
-                        fontSize: 20,
+                        fontSize: 32,
                       ),
                     ),
                   )
@@ -158,72 +158,81 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                   ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         // Recipient Name
         Text(
           'To ${widget.details.payeeName}',
           style: const TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-           //b letterSpacing: 0.1,
+
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+            height:1
+
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 14),
         // Amount
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(
-              widget.details.currencySymbol,
-              style: const TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.w300,
-                color: AppColors.textPrimary,
+            Transform.translate(
+              offset: const Offset(0, -7),
+              child: Text(
+                widget.details.currencySymbol,
+                style: const TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.w400,
+                 // height: 1.1,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
+
 
             Text(
               widget.details.amountText,
               style: const TextStyle(
-                fontSize: 60,
-                fontWeight: FontWeight.w500,
-                //letterSpacing: -0.1,
+                fontSize: 52,
+                fontWeight: FontWeight.w400,
+                letterSpacing: -0.5,
+                height: 1.4,
                 color: AppColors.textPrimary,
               ),
             ),
 
           ],
         ),
-        const SizedBox(height:28),
-        // Pay again button
+
+        const SizedBox(height: 22),
+
         SizedBox(
-          width: 130,
-          height: 48,
+          height: 44, //
           child: ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF0E56CF), //AppColors.googleBlue,
+              backgroundColor: const Color(0xFF0E56CF),
+              elevation: 1.5, // softer shadow
+              padding: const EdgeInsets.symmetric(horizontal: 20), // better than fixed width
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(22), // slightly smaller
               ),
-              elevation: 2,
-              shadowColor: const Color(0x331A73E8),
             ),
             child: const Text(
               'Pay again',
               style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
+                fontSize: 16, //
+                fontWeight: FontWeight.w500, // lighter weight
                 color: Colors.white,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 20),
-        // Status
+
+        const SizedBox(height: 24),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -233,7 +242,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
               size: 18,
               color: Color(0xFF1E8E3E),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Text(
               widget.details.statusText,
               style: const TextStyle(
@@ -244,18 +253,18 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         Container(
-          width: 200,
+          width: 180,
           height: 0.5,
           color: const Color(0xFFc4c7c5),
         ),
-        const SizedBox(height: 13),
+        const SizedBox(height: 14),
         // Date/Time
         Text(
           widget.details.dateTimeText,
           style: const TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             //fontWeight: FontWeight.w400,
             color: Color(0xFF020202),
           ),
@@ -289,7 +298,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 16,
+                  vertical: 10,
                 ),
                 child: Row(
                   children: [
@@ -337,14 +346,15 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${widget.details.bankName} ••••${widget.details.bankLast4}',
-                            maxLines: 1,
+                            '${widget.details.bankName}\n ${widget.details.bankLast4}',
+
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                              letterSpacing: 0,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF202124),
+
+
                             ),
                           ),
                         ],
@@ -380,21 +390,21 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                       widget.details.upiTxnId,
                       bold: true,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     _buildDetailItem(
                       'To: ${widget.details.toName}',
                       'Google Pay • ${widget.details.toVpa}',
                       isSmall: true,
                       bold: true,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     _buildDetailItem(
-                      'From: ${widget.details.fromName}',
+                      'From: ${widget.details.fromName} (${widget.details.bankName})',
                       'Google Pay • ${widget.details.fromVpa}',
                       isSmall: true,
                       bold: true,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     _buildDetailItem(
                       'Google transaction ID',
                       widget.details.googleTxnId,
@@ -417,18 +427,20 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 16,
-            fontWeight:  FontWeight.bold,
-            color: AppColors.textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF202124),
+              letterSpacing: 0
+            //color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 2),
         Text(
           value,
           style: TextStyle(
-            fontSize : 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF323232),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF202124),
            // letterSpacing: isSmall ? 1 : 0,
           ),
         ),
@@ -442,7 +454,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
         Center(
           child: Image.asset(
             'assets/poweredbyupi.png',
-            width: 64,
+            width: 80,
             color: Colors.black, // forces logo to black
             colorBlendMode: BlendMode.srcIn,
           ),

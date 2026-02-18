@@ -27,10 +27,10 @@ class Transaction {
 class MockData {
   static const List<Contact> contacts = [
     Contact(name: 'Vishal', gradient: AppColors.gradientMom),
-    Contact(name: 'Tina', gradient: AppColors.gradientDad),
-    Contact(name: 'Rahul', gradient: AppColors.gradientRahul),
+    Contact(name: 'Md Tanweer Alam', gradient: AppColors.gradientDad),
+    Contact(name: 'Prince Yadav', gradient: AppColors.gradientRahul),
     Contact(name: 'Priya', gradient: [Color(0xFFFF9800), Color(0xFFFFC107)]),
-    Contact(name: 'Harsh', gradient: [Color(0xFF9C27B0), Color(0xFF673AB7)]),
+    Contact(name: 'ISHANT', gradient: [Color(0xFF9C27B0), Color(0xFF673AB7)]),
   ];
 
   static const List<Transaction> transactions = [
