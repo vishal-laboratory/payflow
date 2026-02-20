@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../core/data/mock_payment_config.dart';
 import '../../core/theme/app_colors.dart';
 import 'models/payment_details.dart';
@@ -301,56 +301,109 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                   horizontal: 16,
                   vertical: 10,
                 ),
-                child: Row(
-                  children: [
-                    // Bank Logo
-                    Container(
-                      width: 46,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color(0xFFc4c7c5),
-                          width: 1,
+                // child: Row(
+                //   children: [
+                //     // Bank Logo
+                //     Container(
+                //       width: 46,
+                //       height: 28,
+                //       decoration: BoxDecoration(
+                //         border: Border.all(
+                //           color: const Color(0xFFc4c7c5),
+                //           width: 1,
+                //         ),
+                //         borderRadius: BorderRadius.circular(4),
+                //         color: Colors.white,
+                //       ),
+                //       alignment: Alignment.center,
+                //       child: _buildBankLogo(),
+                //     ),
+                //     const SizedBox(width: 16),
+                //     // // Bank Name
+                //     // Expanded(
+                //     //   child: Column(
+                //     //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     //     children: [
+                //     //       Text(
+                //     //         '${widget.details.bankName}\n ${widget.details.bankLast4}',
+                //     //
+                //     //         //overflow: TextOverflow.ellipsis,
+                //     //         style: const TextStyle(
+                //     //             fontSize: 16,
+                //     //             fontWeight: FontWeight.w600,
+                //     //             color: Color(0xFF202124),
+                //     //
+                //     //
+                //     //         ),
+                //     //       ),
+                //     //     ],
+                //     //   ),
+                //     // ),
+                //
+                //
+                //
+                //     // Chevron
+                //     AnimatedRotation(
+                //       turns: _showBankDetails ? 0 : 0.25,
+                //       duration: const Duration(milliseconds: 150),
+                //       child: const Icon(
+                //         Icons.keyboard_arrow_down,
+                //         color: AppColors.textSecondary,
+                //         size: 24,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+
+                  child: Row(
+                    children: [
+                      // Logo
+                      Container(
+                        width: 46,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFc4c7c5)),
+                          borderRadius: BorderRadius.circular(4),
+                          color: Colors.white,
                         ),
-                        borderRadius: BorderRadius.circular(4),
-                        color: Colors.white,
+                        alignment: Alignment.center,
+                        child: _buildBankLogo(),
                       ),
-                      alignment: Alignment.center,
-                      child: _buildBankLogo(),
-                    ),
-                    const SizedBox(width: 16),
-                    // Bank Name
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${widget.details.bankName}\n ${widget.details.bankLast4}',
 
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF202124),
+                      const SizedBox(width: 16),
 
-
-                            ),
+                      // Text takes ONLY remaining middle space
+                      Expanded(
+                        child: Text(
+                          '${widget.details.bankName} ${widget.details.bankLast4}',
+                          maxLines: 2,
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF202124),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    // Chevron
-                    AnimatedRotation(
-                      turns: _showBankDetails ? 0 : 0.25,
-                      duration: const Duration(milliseconds: 150),
-                      child: const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.textSecondary,
-                        size: 24,
+
+                      const SizedBox(width: 8),
+
+                      // Fixed chevron slot
+                      SizedBox(
+                        width: 32, // fixed reserved space
+                        child: AnimatedRotation(
+                          turns: _showBankDetails ? 0 : 0.25,
+                          duration: const Duration(milliseconds: 150),
+                          child: const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 24,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ),
             ),
             if (_showBankDetails) ...[
@@ -400,29 +453,29 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   }
 
   Widget _buildBankLogo() {
-    final logoPath = MockPaymentConfig.logoForBankName(widget.details.bankName);
+    final logoPath =
+         MockPaymentConfig.logoForBankName(widget.details.bankName);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final logoWidth = constraints.maxWidth * 0.84;
-        final logoHeight = constraints.maxHeight * 0.82;
-
-        return Center(
-          child: Image.asset(
-            logoPath,
-            width: logoWidth,
-            height: logoHeight,
-            fit: BoxFit.fitHeight,
-            alignment: Alignment.center,
-            filterQuality: FilterQuality.high,
-            isAntiAlias: true,
-            errorBuilder: (_, __, ___) => SizedBox(
-              width: logoWidth,
-              height: logoHeight,
-            ),
-          ),
-        );
-      },
+    return Center(
+      child: Image.asset(
+        logoPath,
+        width: 46,
+        height: 28,
+        fit: BoxFit.contain,
+        alignment: Alignment.center,
+        filterQuality: FilterQuality.high,
+        isAntiAlias: true,
+        gaplessPlayback: true,
+        // errorBuilder: (_, __, ___) => const SizedBox(
+        //   width: 44,
+        //   height: 26,
+        //   child: Icon(
+        //     Icons.account_balance,
+        //     size: 16,
+        //     color: AppColors.textSecondary,
+        //   ),
+        // ),
+      ),
     );
   }
 

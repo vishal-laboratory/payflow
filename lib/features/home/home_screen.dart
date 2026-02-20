@@ -7,12 +7,13 @@ import '../../core/widgets/action_card.dart';
 import '../../core/data/contact_store.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/data/transaction_store.dart';
+import '../../core/data/mock_payment_config.dart';
 import 'edit_mock_payment_details_screen.dart';
 import 'people_chat_screen.dart';
 import '../payment/qr_scanner_screen.dart';
-import '../payment/send_money_screen.dart';
 import '../recharge/mobile_recharge_screen.dart';
 import '../history/history_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,7 +26,7 @@ class HomeScreen extends StatelessWidget {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            _buildAppBar(),
+            _buildAppBar(context),
             SliverToBoxAdapter(child: _buildBalanceCard(context)),
             SliverToBoxAdapter(
               child: _buildSectionHeader('Quick Actions', null),
@@ -52,7 +53,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildAppBar() {
+  SliverAppBar _buildAppBar(BuildContext context) {
+    final String greeting = _getGreeting();
+    final String userName = MockPaymentConfig.fromPayerName;
+    final String userInitials = MockPaymentConfig.getInitials();
+
     return SliverAppBar(
       backgroundColor: AppColors.background,
       floating: true,
@@ -61,8 +66,8 @@ class HomeScreen extends StatelessWidget {
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          const Avatar(
-            label: 'M',
+          Avatar(
+            label: userInitials,
             gradient: AppColors
                 .gradientMom, // Using Mom's gradient as placeholder for user
             size: 40,
@@ -73,7 +78,7 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Good Morning',
+                  greeting,
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
@@ -81,7 +86,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Mevish Kumar',
+                  userName,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -100,11 +105,27 @@ class HomeScreen extends StatelessWidget {
           icon: const Icon(LucideIcons.bell, color: AppColors.textPrimary),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+          },
           icon: const Icon(LucideIcons.user, color: AppColors.textPrimary),
         ),
       ],
     );
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
   }
 
   Widget _buildBalanceCard(BuildContext context) {

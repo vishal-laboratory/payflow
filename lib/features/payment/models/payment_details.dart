@@ -16,7 +16,7 @@ class PaymentDetails {
   final String bankLast4;
   final String bankLogoLabel;
   final Color bankLogoColor;
-  final String? bankLogoUrl;
+
   final String upiTxnId;
   final String toName;
   final String toVpa;
@@ -37,7 +37,7 @@ class PaymentDetails {
     required this.bankLast4,
     required this.bankLogoLabel,
     required this.bankLogoColor,
-    this.bankLogoUrl,
+
     required this.upiTxnId,
     required this.toName,
     required this.toVpa,
@@ -60,7 +60,7 @@ class PaymentDetails {
       'bankLast4': bankLast4,
       'bankLogoLabel': bankLogoLabel,
       'bankLogoColor': bankLogoColor.value,
-      'bankLogoUrl': bankLogoUrl,
+
       'upiTxnId': upiTxnId,
       'toName': toName,
       'toVpa': toVpa,
@@ -103,7 +103,7 @@ class PaymentDetails {
       bankLast4: readString('bankLast4', '0000'),
       bankLogoLabel: readString('bankLogoLabel', 'Bank'),
       bankLogoColor: Color(readInt('bankLogoColor', const Color(0xFFB71C1C).value)),
-      bankLogoUrl: map['bankLogoUrl'] as String?,
+
       upiTxnId: readString('upiTxnId', ''),
       toName: readString('toName', ''),
       toVpa: readString('toVpa', ''),
@@ -113,7 +113,7 @@ class PaymentDetails {
     );
   }
 
-  factory PaymentDetails.fromContact(Contact contact, String amount) {
+  factory PaymentDetails.fromContact(Contact contact, String amount, {String? bankName, String? bankLast4}) {
     final bool isQrFlow = contact.upiId != null && contact.upiId!.trim().isNotEmpty;
     final String configuredReceiverName = MockPaymentConfig.receiverName;
     final String displayPayeeName = isQrFlow
@@ -121,6 +121,10 @@ class PaymentDetails {
         : (configuredReceiverName.isNotEmpty ? configuredReceiverName : contact.name);
     final String initial =
       displayPayeeName.isNotEmpty ? displayPayeeName[0].toUpperCase() : '?';
+
+    // Use provided bank details or fall back to MockPaymentConfig
+    final String finalBankName = bankName ?? MockPaymentConfig.bankName;
+    final String finalBankLast4 = bankLast4 ?? MockPaymentConfig.bankLast4;
 
     const String figmaPayeeImageUrl =
         'https://www.figma.com/api/mcp/asset/63938c2b-df69-438d-8254-6105c8621841';
@@ -132,17 +136,17 @@ class PaymentDetails {
       payeeImageUrl: displayPayeeName == 'Mom' ? figmaPayeeImageUrl : null,
       amountText: amount,
       dateTimeText: MockPaymentConfig.formattedTransactionDateTime(),
-      bankName: MockPaymentConfig.bankName,
-      bankLast4: MockPaymentConfig.bankLast4,
-      bankLogoLabel: MockPaymentConfig.bankName,
+      bankName: finalBankName,
+      bankLast4: finalBankLast4,
+      bankLogoLabel: finalBankName,
       bankLogoColor: const Color(0xFFB71C1C),
-      bankLogoUrl: MockPaymentConfig.logoForBankName(MockPaymentConfig.bankName),
-      upiTxnId: MockPaymentConfig.upiTransactionId,
+
+      upiTxnId: MockPaymentConfig.generateUpiRRN(),
       toName: isQrFlow ? contact.name : MockPaymentConfig.toReceiverName,
       toVpa: isQrFlow ? contact.upiId! : MockPaymentConfig.toReceiverUpiId,
       fromName: MockPaymentConfig.fromPayerName,
       fromVpa: MockPaymentConfig.fromPayerUpiId,
-      googleTxnId: MockPaymentConfig.googleTransactionId,
+      googleTxnId: MockPaymentConfig.generateGoogleTransactionId(),
     );
   }
 }

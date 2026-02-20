@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/data/mock_data.dart';
+import '../../core/data/bank_account_store.dart';
+import '../../core/models/bank_account.dart';
 import '../../core/theme/app_colors.dart';
 import 'send_money_screen.dart';
 
@@ -62,9 +64,169 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       gradient: AppColors.gradientRahul,
     );
 
+    // Get all available bank accounts
+    final accounts = BankAccountStore.allAccounts;
+    
+    if (accounts.isEmpty) {
+      // No accounts available, show selection modal
+      _showBankAccountSelection(contact);
+    } else {
+      // Auto-select first account and proceed directly to SendMoneyScreen
+      _proceedWithPayment(contact, accounts.first);
+    }
+  }
+
+  void _showBankAccountSelection(Contact contact) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  const Text(
+                    'Select bank account',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(LucideIcons.x, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ValueListenableBuilder<List<BankAccount>>(
+                valueListenable: BankAccountStore.accountsNotifier,
+                builder: (context, accounts, _) {
+                  if (accounts.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            LucideIcons.building2,
+                            size: 48,
+                            color: AppColors.textSecondary.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'No bank accounts added',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Add a bank account in Profile\nto proceed with payment',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    itemCount: accounts.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final account = accounts[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          _proceedWithPayment(contact, account);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF5F5F5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  LucideIcons.building2,
+                                  color: AppColors.googleBlue,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      account.bankName,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '****${account.accountNumber.length >= 4 ? account.accountNumber.substring(account.accountNumber.length - 4) : account.accountNumber} • ${account.upiId}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                LucideIcons.chevronRight,
+                                color: AppColors.textSecondary,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _proceedWithPayment(Contact contact, BankAccount selectedAccount) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => SendMoneyScreen(contact: contact)),
+      MaterialPageRoute(
+        builder: (_) => SendMoneyScreen(
+          contact: contact,
+          preSelectedAccount: selectedAccount,
+        ),
+      ),
     );
   }
 
