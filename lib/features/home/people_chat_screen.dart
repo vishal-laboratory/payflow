@@ -19,63 +19,56 @@ class PeopleChatScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        leading: BackButton(color: AppColors.textPrimary),
-        titleSpacing: 0,
-        title: Row(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(LucideIcons.chevronLeft, color: AppColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: contact.gradient.first,
-              child: Text(
-                contact.name.isNotEmpty
-                    ? contact.name[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(color: Colors.white, fontSize: 22),
+            Text(
+              contact.name.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    contact.name.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Active now',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.textSecondary.withOpacity(0.7),
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 2),
+            Text(
+              'Online now',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: AppColors.textSecondary.withOpacity(0.7),
               ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Feature coming soon!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
             icon: const Icon(LucideIcons.phone,
-                color: AppColors.textPrimary, size: 20),
+                color: AppColors.googleBlue, size: 20),
           ),
           IconButton(
-            onPressed: () {},
-            icon: const Icon(LucideIcons.video,
-                color: AppColors.textPrimary, size: 20),
-          ),
-          IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Feature coming soon!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
             icon: const Icon(LucideIcons.moreVertical,
                 color: AppColors.textPrimary, size: 20),
           ),
@@ -117,13 +110,13 @@ class PeopleChatScreen extends StatelessWidget {
                 )
               else
                 ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 120),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
                   itemCount: records.length + (records.isNotEmpty ? 1 : 0),
                   itemBuilder: (context, index) {
                     // Add date header at the beginning
                     if (index == 0 && records.isNotEmpty) {
                       return Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Text(
                           'Today',
                           style: TextStyle(
@@ -135,11 +128,9 @@ class PeopleChatScreen extends StatelessWidget {
                       );
                     }
 
-                    final recordIndex =
-                        index - 1; // Adjust for date header
+                    final recordIndex = index - 1;
                     final record = records[recordIndex];
-                    final isOutgoing =
-                        record.receiverName == contact.name;
+                    final isOutgoing = record.receiverName == contact.name;
 
                     return GestureDetector(
                       onTap: record.paymentSnapshot == null
@@ -159,204 +150,85 @@ class PeopleChatScreen extends StatelessWidget {
                               );
                             },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Avatar
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor:
-                                  contact.gradient.first,
-                              child: Text(
-                                contact.name.isNotEmpty
-                                    ? contact.name[0]
-                                        .toUpperCase()
-                                    : '?',
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: Colors.grey[200]!),
+                          ),
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .spaceBetween,
+                                children: [
+                                  Text(
+                                    isOutgoing
+                                        ? 'Sent to ${contact.name}'
+                                        : 'Received from ${contact.name}',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight:
+                                          FontWeight.w500,
+                                      color: AppColors
+                                          .textSecondary,
+                                    ),
+                                  ),
+                                  if (!isOutgoing)
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      size: 18,
+                                      color: AppColors
+                                          .textSecondary,
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '₹${record.amount.toStringAsFixed(2)}',
                                 style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Transaction Details
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                              const SizedBox(height: 8),
+                              Row(
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment
-                                            .spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              isOutgoing
-                                                  ? 'Sent to ${contact.name}'
-                                                  : 'Received from ${contact.name}',
-                                              style:
-                                                  const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight:
-                                                    FontWeight
-                                                        .w600,
-                                                color: AppColors
-                                                    .textPrimary,
-                                              ),
-                                              maxLines: 1,
-                                              overflow:
-                                                  TextOverflow
-                                                      .ellipsis,
-                                            ),
-                                            const SizedBox(
-                                                height: 4),
-                                            Text(
-                                              TransactionStore
-                                                  .formatForChat(
-                                                      record
-                                                          .createdAt),
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: AppColors
-                                                    .textSecondary
-                                                    .withOpacity(
-                                                        0.7),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      // Amount Section
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment
-                                                .end,
-                                        children: [
-                                          Text(
-                                            isOutgoing
-                                                ? '-₹${record.amount.toStringAsFixed(2)}'
-                                                : '+₹${record.amount.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight:
-                                                  FontWeight.w700,
-                                              color: isOutgoing
-                                                  ? AppColors
-                                                      .textPrimary
-                                                  : const Color(
-                                                      0xFF34A853),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Container(
-                                            padding:
-                                                const EdgeInsets
-                                                    .symmetric(
-                                                  horizontal: 6,
-                                                  vertical: 2,
-                                                ),
-                                            decoration:
-                                                BoxDecoration(
-                                              color: AppColors
-                                                  .success
-                                                  .withOpacity(
-                                                      0.15),
-                                              borderRadius:
-                                                  BorderRadius
-                                                      .circular(
-                                                          4),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize:
-                                                  MainAxisSize
-                                                      .min,
-                                              children: [
-                                                const Icon(
-                                                  Icons
-                                                      .check_circle,
-                                                  color: AppColors
-                                                      .success,
-                                                  size: 12,
-                                                ),
-                                                const SizedBox(
-                                                    width: 4),
-                                                Text(
-                                                  'Paid',
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: AppColors
-                                                        .success,
-                                                    fontWeight:
-                                                        FontWeight
-                                                            .w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                  const Icon(
+                                    Icons.check_circle,
+                                    size: 14,
+                                    color: Color(0xFF1E8E3E),
                                   ),
-                                  const SizedBox(height: 8),
-                                  // Notes/Reference
-                                  Container(
-                                    padding:
-                                        const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.background,
-                                      borderRadius:
-                                          BorderRadius.circular(
-                                              8),
-                                      border: Border.all(
-                                        color: AppColors
-                                            .borderLight,
-                                      ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Paid • ${_formatDate(record.createdAt)}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors
+                                          .textSecondary,
+                                      fontWeight:
+                                          FontWeight.w400,
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          LucideIcons.info,
-                                          size: 14,
-                                          color: AppColors
-                                              .textSecondary
-                                              .withOpacity(0.6),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            'Transaction ID: ${_getTxnIdPreview(record.paymentSnapshot)}',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors
-                                                  .textSecondary
-                                                  .withOpacity(
-                                                      0.6),
-                                            ),
-                                            maxLines: 1,
-                                            overflow:
-                                                TextOverflow
-                                                    .ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Icon(
+                                    LucideIcons.chevronRight,
+                                    size: 16,
+                                    color: AppColors
+                                        .textSecondary,
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -365,44 +237,38 @@ class PeopleChatScreen extends StatelessWidget {
               Positioned(
                 right: 16,
                 bottom: 16,
-                child: SizedBox(
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              SendMoneyScreen(contact: contact),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.googleBlue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            SendMoneyScreen(contact: contact),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 34),
-                      elevation: 4,
-                      shadowColor: AppColors.googleBlue
-                          .withOpacity(0.4),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.googleBlue,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(LucideIcons.send,
-                            size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Pay',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(LucideIcons.send, size: 18),
+                      SizedBox(width: 8),
+                      Text(
+                        'Pay',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -413,9 +279,21 @@ class PeopleChatScreen extends StatelessWidget {
     );
   }
 
-  String _getTxnIdPreview(Map<String, dynamic>? snapshot) {
-    if (snapshot == null) return 'N/A';
-    final txnId = snapshot['transactionId']?.toString() ?? 'N/A';
-    return txnId.length > 8 ? '${txnId.substring(0, 8)}...' : txnId;
+  String _formatDate(DateTime dateTime) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${dateTime.day} ${months[dateTime.month - 1]}';
   }
 }

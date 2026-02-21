@@ -8,6 +8,7 @@ import '../../core/data/contact_store.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/data/transaction_store.dart';
 import '../../core/data/mock_payment_config.dart';
+import '../chat/chat_screen.dart';
 import 'edit_mock_payment_details_screen.dart';
 import 'people_chat_screen.dart';
 import '../payment/qr_scanner_screen.dart';
@@ -101,7 +102,14 @@ class HomeScreen extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Feature coming soon!'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
           icon: const Icon(LucideIcons.bell, color: AppColors.textPrimary),
         ),
         IconButton(
@@ -188,7 +196,15 @@ class HomeScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildBalanceAction(context, LucideIcons.send, 'Send'),
+              _buildBalanceAction(context, LucideIcons.send, 'Send', 
+               onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditMockPaymentDetailsScreen(),
+                          ),
+                        );
+                      },),
               _buildBalanceAction(context, LucideIcons.download, 'Receive'),
               _buildBalanceAction(
                 context,

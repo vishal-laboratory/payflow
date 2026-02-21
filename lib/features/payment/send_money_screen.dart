@@ -151,7 +151,14 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                     if (!_showNumpad) ..._buildAmountEditableHint() else const SizedBox(height: 24),
                     // Add Note (Optional)
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Feature coming soon!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Add note',
                         style: TextStyle(
@@ -172,11 +179,12 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
               ),
             ),
           ),
-          // Pay Button - Always visible above numpad
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: _buildPayButton(),
-          ),
+          // Pay Button - Only visible when bank account is selected
+          if (selectedBankAccount != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: _buildPayButton(),
+            ),
           // Numpad at Bottom - Only shown when needed
           if (_showNumpad) _buildNumpadSheet(),
         ],

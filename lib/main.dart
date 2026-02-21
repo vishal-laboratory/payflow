@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/data/contact_store.dart';
 import 'core/data/transaction_store.dart';
 import 'core/data/bank_account_store.dart';
+import 'core/data/mock_payment_config.dart';
 import 'core/theme/app_colors.dart';
 import 'core/widgets/splash_screen.dart';
 import 'features/home/home_screen.dart';
@@ -13,6 +14,7 @@ Future<void> main() async {
   await ContactStore.init();
   await TransactionStore.init();
   await BankAccountStore.initialize();
+  await MockPaymentConfig.loadUserProfile();
   runApp(const PayFlowApp());
 }
 
@@ -55,13 +57,19 @@ class _PayFlowAppState extends State<PayFlowApp> {
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: 'GoogleSans',
+        brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
-
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+         //
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1A73E8),
           primary: const Color(0xFF1A73E8),
+          brightness: Brightness.light,
         ),
-
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Color(0xFF202124)),
           bodyMedium: TextStyle(color: Color(0xFF202124)),

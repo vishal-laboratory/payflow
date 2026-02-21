@@ -1,5 +1,8 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:ui' as ui;
 
 import '../../core/data/mock_payment_config.dart';
 import '../../core/theme/app_colors.dart';
@@ -16,6 +19,33 @@ class PaymentSuccessScreen extends StatefulWidget {
 
 class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   bool _showBankDetails = true;
+  late ScrollController _scrollController;
+  bool _showBottomSheet = true;
+  final GlobalKey _repaintBoundaryKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    // Hide bottom sheet when scrolling up, show when scrolling down
+    final newShowBottomSheet = !(_scrollController.position.pixels > 50);
+    if (newShowBottomSheet != _showBottomSheet) {
+      setState(() {
+        _showBottomSheet = newShowBottomSheet;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,26 +57,39 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
             // Header Top Bar
             _buildHeaderBar(),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 10),
-                    // Recipient Section
-                    _buildRecipientSection(),
-                    const SizedBox(height: 34),
-                    // Bank Details Card
-                    _buildBankDetailsCard(),
-                    const SizedBox(height: 1),
-                    // UPI Logo and Message
-                    _buildUpiSection(),
-                    const SizedBox(height: 16),
-                  ],
+              child: RepaintBoundary(
+                key: _repaintBoundaryKey,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 10),
+                      // Recipient Section
+                      _buildRecipientSection(),
+                      const SizedBox(height: 34),
+                      // Bank Details Card
+                      _buildBankDetailsCard(),
+                      const SizedBox(height: 1),
+                      // UPI Logo and Message
+                      _buildUpiSection(),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
-            // Bottom Sheet
-            _buildBottomSheet(),
+            // Bottom Sheet - Hide/Show on scroll
+            ClipRect(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: _showBottomSheet ? 100 : 0,
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: _buildBottomSheet(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -535,44 +578,102 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
           topRight: Radius.circular(28),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-      height: 88,
-
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Help Button
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF909090), width: 1),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    LucideIcons.helpCircle,
-                    color: AppColors.textPrimary,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Having issues?',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
+          // Having Issues Button
+          _buildBottomSheetButton(
+            icon: LucideIcons.helpCircle,
+            label: 'Having issues?',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Feature coming soon!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          // Share Button
+          _buildBottomSheetButton(
+            icon: LucideIcons.share2,
+            label: 'Share',
+            onTap: _captureAndShare,
+          ),
+          // Split Expenses Button
+          _buildBottomSheetButton(
+            icon: LucideIcons.users,
+            label: 'Split',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Feature coming soon!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.googleBlue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.googleBlue,
+              size: 20,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _captureAndShare() async {
+    try {
+      final boundary = _repaintBoundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      
+      if (byteData != null && mounted) {
+        final pngBytes = byteData.buffer.asUint8List();
+        await Share.shareXFiles(
+          [XFile.fromData(pngBytes, mimeType: 'image/png', name: 'payment_receipt.png')],
+          text: 'Payment to ${widget.details.payeeName} - ₹${widget.details.amountText}',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to share: $e')),
+        );
+      }
+    }
   }
 }

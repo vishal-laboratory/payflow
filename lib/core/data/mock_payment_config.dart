@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BankOption {
   final String name;
@@ -10,15 +11,15 @@ class BankOption {
 
 class MockPaymentConfig {
   static const String _defaultReceiverName = 'Reciver name';
-  static const String _defaultBankName = 'India Post Payments Bank';
+  static const String _defaultBankName = 'HDFC Bank';
   static const String _defaultBankLogoPath = 'assets/bank/cbi-bank.png';
   static const String _defaultBankLast4 = '4547';
   static const String _defaultUpiTxnId = '640951684878';
   static const String _defaultToReceiverName = ' ReceiverName';
-  static const String _defaultToReceiverUpiId = 'sonu029@ibl';
-  static const String _defaultFromPayerName = ' Sender Name';
-  static const String _defaultFromPayerUpiId = 'alexmercer@okicici';
-  static const String _defaultFromPayerPhone = '8812198142';
+  static const String _defaultToReceiverUpiId = 'hello@ibl';
+  static const String _defaultFromPayerName = '  HI';
+  static const String _defaultFromPayerUpiId = 'hello@okicici';
+  static const String _defaultFromPayerPhone = '69696969';
   static const String _defaultGoogleTxnId = 'CICAgUihmcn3Dg';
   static final DateTime _defaultTransactionDateTime = DateTime(2026, 2, 18, 1, 55);
 
@@ -43,10 +44,7 @@ class MockPaymentConfig {
     BankOption(name: 'Bank of Baroda', logoAssetPath: 'assets/bank/bob-bank.png'),
     BankOption(name: 'Canara Bank', logoAssetPath: 'assets/bank/canara-bank.png'),
     BankOption(name: 'India Post Payments Bank', logoAssetPath: 'assets/bank/img.png'),
-    BankOption(
-      name: 'Central Bank of India',
-      logoAssetPath: 'assets/bank/cbi-bank.png',
-    ),
+    BankOption(name: 'Central Bank of India',logoAssetPath: 'assets/bank/cbi-bank.png',),
   ];
 
   static void update({
@@ -102,12 +100,24 @@ class MockPaymentConfig {
 
   static void updateUserProfile({
     required String fullName,
-    required String upiId,
     required String phoneNumber,
   }) {
     fromPayerName = _normalize(fullName, _defaultFromPayerName);
-    fromPayerUpiId = _normalize(upiId, _defaultFromPayerUpiId);
     fromPayerPhone = _normalize(phoneNumber, _defaultFromPayerPhone);
+  }
+
+  /// Save user profile to SharedPreferences
+  static Future<void> saveUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('fromPayerName', fromPayerName);
+    await prefs.setString('fromPayerPhone', fromPayerPhone);
+  }
+
+  /// Load user profile from SharedPreferences
+  static Future<void> loadUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    fromPayerName = prefs.getString('fromPayerName') ?? _defaultFromPayerName;
+    fromPayerPhone = prefs.getString('fromPayerPhone') ?? _defaultFromPayerPhone;
   }
 
   static String getInitials() {
