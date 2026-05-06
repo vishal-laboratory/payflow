@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 
 import '../../core/data/mock_payment_config.dart';
 import '../../core/theme/app_colors.dart';
+import '../home/edit_mock_payment_details_screen.dart';
 import 'models/payment_details.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
@@ -57,9 +58,15 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
             // Header Top Bar
             _buildHeaderBar(),
             Expanded(
-              child: RepaintBoundary(
-                key: _repaintBoundaryKey,
-                child: SingleChildScrollView(
+              child: GestureDetector(
+                onDoubleTap: () {
+                  setState(() {
+                    _showBottomSheet = !_showBottomSheet;
+                  });
+                },
+                child: RepaintBoundary(
+                  key: _repaintBoundaryKey,
+                  child: SingleChildScrollView(
                   controller: _scrollController,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -79,6 +86,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 ),
               ),
             ),
+          ),
             // Bottom Sheet - Hide/Show on scroll
             ClipRect(
               child: AnimatedContainer(
@@ -255,7 +263,17 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
         SizedBox(
           height: 44, //
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditMockPaymentDetailsScreen(
+                    initialReceiverName: widget.details.toName,
+                    initialReceiverUpiId: widget.details.toVpa,
+                  ),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0E56CF),
               elevation: 1.5, // softer shadow

@@ -1,0 +1,38 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="200" fill="#FFFFFF"/>
+  
+  <!-- Main circle background -->
+  <circle cx="100" cy="100" r="85" fill="#1A73E8" opacity="0.1"/>
+  
+  <!-- Flowing lines representing payment flow -->
+  <g stroke="#1A73E8" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Wave 1 -->
+    <path d="M 50 100 Q 70 85, 90 100 T 130 100" opacity="1"/>
+    
+    <!-- Wave 2 -->
+    <path d="M 50 120 Q 70 105, 90 120 T 130 120" opacity="0.8"/>
+    
+    <!-- Wave 3 -->
+    <path d="M 50 80 Q 70 65, 90 80 T 130 80" opacity="0.8"/>
+  </g>
+  
+  <!-- Central rupee symbol -->
+  <g fill="#1A73E8">
+    <!-- Rupee symbol -->
+    <circle cx="100" cy="100" r="35" fill="none" stroke="#1A73E8" stroke-width="2"/>
+    <text x="100" y="112" font-size="50" font-weight="bold" text-anchor="middle" fill="#1A73E8" font-family="Arial, sans-serif">₹</text>
+  </g>
+  
+  <!-- Accent dots -->
+  <circle cx="60" cy="60" r="4" fill="#1A73E8" opacity="0.6"/>
+  <circle cx="140" cy="140" r="4" fill="#1A73E8" opacity="0.6"/>
+  
+  <!-- Arrow indicating flow/movement -->
+  <g fill="none" stroke="#1A73E8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 155 85 L 145 95 L 155 105" opacity="0.7"/>
+  </g>
+  
+  <!-- Text: PayFlow -->
+  <text x="100" y="165" font-size="24" font-weight="600" text-anchor="middle" fill="#1A73E8" font-family="Arial, sans-serif">PayFlow</text>
+</svg>

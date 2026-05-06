@@ -7,7 +7,14 @@ import '../../core/theme/app_colors.dart';
 import '../payment/send_money_screen.dart';
 
 class EditMockPaymentDetailsScreen extends StatefulWidget {
-  const EditMockPaymentDetailsScreen({super.key});
+  final String? initialReceiverName;
+  final String? initialReceiverUpiId;
+
+  const EditMockPaymentDetailsScreen({
+    super.key,
+    this.initialReceiverName,
+    this.initialReceiverUpiId,
+  });
 
   @override
   State<EditMockPaymentDetailsScreen> createState() =>
@@ -25,8 +32,12 @@ class _EditMockPaymentDetailsScreenState
   @override
   void initState() {
     super.initState();
-    _toReceiverNameController = TextEditingController(text: '');
-    _toReceiverUpiController = TextEditingController(text: '');
+    _toReceiverNameController = TextEditingController(
+      text: widget.initialReceiverName ?? '',
+    );
+    _toReceiverUpiController = TextEditingController(
+      text: widget.initialReceiverUpiId ?? '',
+    );
     _selectedDateTime = DateTime.now();
   }
 

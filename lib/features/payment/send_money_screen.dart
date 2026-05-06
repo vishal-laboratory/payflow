@@ -32,11 +32,33 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
   bool _showNumpad = true;
   BankAccount? selectedBankAccount;
 
+  Color _colorForPayee(Contact contact) {
+    final identity = contact.upiId?.trim().isNotEmpty == true
+        ? contact.upiId!.trim()
+        : contact.name.trim();
+
+    if (identity.isEmpty) {
+      return AppColors.primary;
+    }
+
+    final colors = AppColors.payeeAvatarColors;
+    final index = (identity.hashCode & 0x7fffffff) % colors.length;
+    return colors[index];
+  }
+
+  void _autoSelectPrimaryAccount([List<BankAccount>? accounts]) {
+    final availableAccounts = accounts ?? BankAccountStore.allAccounts;
+    if (selectedBankAccount == null && availableAccounts.length == 1) {
+      selectedBankAccount = availableAccounts.first;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     // Use pre-selected account if provided
     selectedBankAccount = widget.preSelectedAccount;
+    _autoSelectPrimaryAccount();
   }
 
   void _onKeyPressed(String value) {
@@ -79,6 +101,8 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       );
       return;
     }
+
+    _autoSelectPrimaryAccount();
 
     if (selectedBankAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -197,7 +221,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       children: [
         Avatar(
           label: widget.contact.name[0].toUpperCase(),
-          gradient: widget.contact.gradient,
+          color: _colorForPayee(widget.contact),
           size: 72,
         ),
         const SizedBox(height: 16),
@@ -283,6 +307,10 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                     builder: (_) => const ProfileScreen(),
                   ),
                 );
+              } else if (accounts.length == 1) {
+                setState(() {
+                  selectedBankAccount = accounts.first;
+                });
               } else {
                 _showBankSelectionSheet(accounts);
               }
@@ -343,6 +371,15 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
         ValueListenableBuilder<List<BankAccount>>(
           valueListenable: BankAccountStore.accountsNotifier,
           builder: (context, accounts, _) {
+            if (accounts.length == 1 && selectedBankAccount?.id != accounts.first.id) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                setState(() {
+                  selectedBankAccount = accounts.first;
+                });
+              });
+            }
+
             if (accounts.isEmpty) {
               return GestureDetector(
                 onTap: () {
@@ -420,7 +457,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
 
             final account = selectedBankAccount ?? accounts.first;
             return GestureDetector(
-              onTap: () => _showBankSelectionSheet(accounts),
+              onTap: accounts.length == 1 ? null : () => _showBankSelectionSheet(accounts),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,

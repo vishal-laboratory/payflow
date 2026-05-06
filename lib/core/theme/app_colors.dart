@@ -62,4 +62,15 @@ class AppColors {
   static const List<Color> gradientAlex = [Color(0xFFFF6B6B), Color(0xFFFF8E53)];
   static const List<Color> gradientSarah = [Color(0xFF667EEA), Color(0xFF764BA2)];
   static const List<Color> gradientMike = [Color(0xFF00D2FC), Color(0xFF3677FF)];
+
+  static const List<Color> payeeAvatarColors = [
+    Color(0xFF1E88E5),
+    Color(0xFFD81B60),
+    Color(0xFF43A047),
+    Color(0xFFF4511E),
+    Color(0xFF8E24AA),
+    Color(0xFF3949AB),
+    Color(0xFF00897B),
+    Color(0xFF6D4C41),
+  ];
 }

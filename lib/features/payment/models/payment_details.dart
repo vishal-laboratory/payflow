@@ -46,6 +46,20 @@ class PaymentDetails {
     required this.googleTxnId,
   });
 
+  static Color _colorForPayee(Contact contact) {
+    final identity = contact.upiId?.trim().isNotEmpty == true
+        ? contact.upiId!.trim()
+        : contact.name.trim();
+
+    if (identity.isEmpty) {
+      return AppColors.primary;
+    }
+
+    final colors = AppColors.payeeAvatarColors;
+    final index = (identity.hashCode & 0x7fffffff) % colors.length;
+    return colors[index];
+  }
+
   Map<String, dynamic> toSnapshot() {
     return {
       'payeeName': payeeName,
@@ -126,14 +140,11 @@ class PaymentDetails {
     final String finalBankName = bankName ?? MockPaymentConfig.bankName;
     final String finalBankLast4 = bankLast4 ?? MockPaymentConfig.bankLast4;
 
-    const String figmaPayeeImageUrl =
-        'https://www.figma.com/api/mcp/asset/63938c2b-df69-438d-8254-6105c8621841';
     return PaymentDetails(
       payeeName: displayPayeeName,
       payeeInitial: initial,
-      payeeColor:
-          contact.gradient.isNotEmpty ? contact.gradient.first : AppColors.primary,
-      payeeImageUrl: displayPayeeName == 'Mom' ? figmaPayeeImageUrl : null,
+      payeeColor: _colorForPayee(contact),
+      payeeImageUrl: null,
       amountText: amount,
       dateTimeText: MockPaymentConfig.formattedTransactionDateTime(),
       bankName: finalBankName,

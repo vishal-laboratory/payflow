@@ -98,6 +98,23 @@ class MockPaymentConfig {
     return trimmed.isEmpty ? fallback : trimmed;
   }
 
+  /// Syncs MockPaymentConfig fields from the primary (first) bank account.
+  /// Call this whenever the bank account list changes.
+  static void syncPrimaryAccount(List<dynamic> accounts) {
+    if (accounts.isEmpty) return;
+    // Use dynamic to avoid circular import — caller passes BankAccount objects
+    final primary = accounts.first;
+    fromPayerUpiId = (primary.upiId as String).trim().isEmpty
+        ? _defaultFromPayerUpiId
+        : (primary.upiId as String).trim();
+    bankName = (primary.bankName as String).trim().isEmpty
+        ? _defaultBankName
+        : (primary.bankName as String).trim();
+    bankLogoPath = logoForBankName(bankName);
+    final acct = primary.accountNumber as String;
+    bankLast4 = acct.length >= 4 ? acct.substring(acct.length - 4) : acct;
+  }
+
   static void updateUserProfile({
     required String fullName,
     required String phoneNumber,
@@ -168,8 +185,7 @@ class MockPaymentConfig {
   }
 
   static String formattedTransactionDateTime() {
-    // Use current time for transactions
-    final dt = DateTime.now();
+    final dt = transactionDateTime;
     const months = [
       'Jan',
       'Feb',

@@ -1,0 +1,6 @@
+{
+    "java.project.sourcePaths": [
+        "assets/bank/resized"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

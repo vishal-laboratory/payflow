@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/data/transaction_store.dart';
 import '../../core/theme/app_colors.dart';
+import 'edit_mock_payment_details_screen.dart';
 import '../payment/models/payment_details.dart';
 import '../payment/payment_success_screen.dart';
 import '../payment/send_money_screen.dart';
@@ -242,8 +243,10 @@ class PeopleChatScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            SendMoneyScreen(contact: contact),
+                        builder: (_) => EditMockPaymentDetailsScreen(
+                          initialReceiverName: contact.name,
+                          initialReceiverUpiId: contact.upiId,
+                        ),
                       ),
                     );
                   },
