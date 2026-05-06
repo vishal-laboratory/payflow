@@ -59,3 +59,10 @@ $buildInfo = @(
 Set-Content -Path $releaseInfoPath -Value $buildInfo
 
 Write-Host "Synced latest release to $releaseApkPath"
+
+[pscustomobject]@{
+  VersionName = $versionName
+  ReleaseApkPath = $releaseApkPath
+  ReleaseInfoPath = $releaseInfoPath
+  RepoRoot = $repoRoot
+}
