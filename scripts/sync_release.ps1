@@ -6,6 +6,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
+
+if (-not [System.IO.Path]::IsPathRooted($BuildOutputPath)) {
+  $BuildOutputPath = Join-Path $repoRoot $BuildOutputPath
+}
+
+if (-not [System.IO.Path]::IsPathRooted($ReleaseFolderPath)) {
+  $ReleaseFolderPath = Join-Path $repoRoot $ReleaseFolderPath
+}
+
+if (-not [System.IO.Path]::IsPathRooted($PubspecPath)) {
+  $PubspecPath = Join-Path $repoRoot $PubspecPath
+}
+
 if (-not (Test-Path $BuildOutputPath)) {
   throw "Release APK not found at '$BuildOutputPath'. Run 'flutter build apk --release' first."
 }

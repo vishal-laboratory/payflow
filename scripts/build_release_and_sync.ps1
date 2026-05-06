@@ -5,6 +5,15 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-flutter build apk --release
+$repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
+$absoluteBuildOutputPath = Join-Path $repoRoot $BuildOutputPath
+$absoluteReleaseFolderPath = Join-Path $repoRoot $ReleaseFolderPath
 
-& "$PSScriptRoot/sync_release.ps1" -BuildOutputPath $BuildOutputPath -ReleaseFolderPath $ReleaseFolderPath
+Push-Location $repoRoot
+try {
+  flutter build apk --release
+} finally {
+  Pop-Location
+}
+
+& "$PSScriptRoot/sync_release.ps1" -BuildOutputPath $absoluteBuildOutputPath -ReleaseFolderPath $absoluteReleaseFolderPath
