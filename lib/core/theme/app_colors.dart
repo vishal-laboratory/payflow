@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary & Brand Colors
+
+
+
+
+
+
+  static const textPrimary = Color(0xFF202124);
+  static const textSecondary = Color(0xFF5F6368);
+  static const divider = Color(0xFFc4c7c5);
+
+  static const googleBlue = Color(0xFF1A73E8);
+  static const successGreen = Color(0xFF1E8E3E);
+
+  /// pay again #0b57cf
   static const Color primary = Color(0xFF1F71E8); // Modern Google Blue
   static const Color primaryDark = Color(0xFF1557B0);
   static const Color primaryLight = Color(0xFF4D8FFF);
@@ -12,8 +25,7 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFF8F9FA);
   
   // Text Colors
-  static const Color textPrimary = Color(0xFF202124);
-  static const Color textSecondary = Color(0xFF5F6368);
+
   static const Color textTertiary = Color(0xFF9AA0A6);
   
   // Status Colors
@@ -22,13 +34,13 @@ class AppColors {
   static const Color error = Color(0xFFDC2626);
   
   // Utility Colors
-  static const Color googleBlue = Color(0xFF1A73E8);
+
   static const Color googleGreen = Color(0xFF128527);
   static const Color googleYellow = Color(0xFFF9AB00);
   static const Color googleRed = Color(0xFFD33B27);
   
   // Borders & Dividers
-  static const Color divider = Color(0xFFDFDFDF);
+
   static const Color borderLight = Color(0xFFEBEBEB);
   static const Color borderMedium = Color(0xFFD0D0D0);
   
@@ -50,4 +62,15 @@ class AppColors {
   static const List<Color> gradientAlex = [Color(0xFFFF6B6B), Color(0xFFFF8E53)];
   static const List<Color> gradientSarah = [Color(0xFF667EEA), Color(0xFF764BA2)];
   static const List<Color> gradientMike = [Color(0xFF00D2FC), Color(0xFF3677FF)];
+
+  static const List<Color> payeeAvatarColors = [
+    Color(0xFF1E88E5),
+    Color(0xFFD81B60),
+    Color(0xFF43A047),
+    Color(0xFFF4511E),
+    Color(0xFF8E24AA),
+    Color(0xFF3949AB),
+    Color(0xFF00897B),
+    Color(0xFF6D4C41),
+  ];
 }

@@ -1,0 +1,59 @@
+name: Build and Publish Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Read app version
+        id: app_version
+        shell: bash
+        run: |
+          version=$(grep '^version:' pubspec.yaml | head -n 1 | sed 's/version:[[:space:]]*//; s/+.*//')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Sync latest release folder
+        shell: pwsh
+        run: scripts/sync_release.ps1
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.app_version.outputs.version }}
+          name: Payflow v${{ steps.app_version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          files: |
+            release/*.apk
+            release/release-info.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

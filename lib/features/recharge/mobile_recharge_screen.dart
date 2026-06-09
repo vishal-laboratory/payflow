@@ -190,7 +190,14 @@ class _MobileRechargeScreenState extends State<MobileRechargeScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Feature coming soon!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors
                       .textPrimary, // Disabled looking style if invalid, but active for prototype

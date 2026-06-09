@@ -19,7 +19,14 @@ class TransactionDetailsScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Feature coming soon!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
           ),
         ],
       ),
