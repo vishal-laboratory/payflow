@@ -140,6 +140,11 @@ class PaymentDetails {
     final String finalBankName = bankName ?? MockPaymentConfig.bankName;
     final String finalBankLast4 = bankLast4 ?? MockPaymentConfig.bankLast4;
 
+    const String figmaPayeeImageUrl =
+        'https://www.figma.com/api/mcp/asset/63938c2b-df69-438d-8254-6105c8621841';
+    const String figmaBankLogoUrl =
+        'https://www.figma.com/api/mcp/asset/066094ac-04ed-4b14-ae42-89fdc6a13237';
+
     return PaymentDetails(
       payeeName: displayPayeeName,
       payeeInitial: initial,
