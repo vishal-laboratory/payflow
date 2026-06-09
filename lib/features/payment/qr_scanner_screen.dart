@@ -230,49 +230,165 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     );
   }
 
-  _ParsedQr? _parseQr(String raw) {
-    final value = raw.trim();
-    if (value.isEmpty) {
-      return null;
-    }
 
-    if (value.startsWith('upi://pay')) {
-      final uri = Uri.tryParse(value);
-      final upiId = uri?.queryParameters['pa']?.trim();
-      final name = uri?.queryParameters['pn']?.trim();
-      if (upiId != null && upiId.isNotEmpty) {
-        return _ParsedQr(
-          name: (name == null || name.isEmpty) ? 'UPI Receiver' : name,
-          upiId: upiId,
-        );
-      }
-    }
+_ParsedQr? _parseQr(String raw) {
+  final value = raw.trim();
 
-    final byLine = value.split('\n');
-    String? name;
-    String? upiId;
-    for (final line in byLine) {
-      final normalized = line.trim();
-      if (normalized.contains('@') && upiId == null) {
-        upiId = normalized;
-      }
-      if (normalized.toLowerCase().startsWith('name:')) {
-        name = normalized.split(':').skip(1).join(':').trim();
-      }
-      if (normalized.toLowerCase().startsWith('upi:')) {
-        upiId = normalized.split(':').skip(1).join(':').trim();
-      }
-    }
+  if (value.isEmpty) {
+    return null;
+  }
+
+  // Standard UPI QR
+  if (value.startsWith('upi://pay')) {
+    final uri = Uri.tryParse(value);
+
+    final upiId = uri?.queryParameters['pa']?.trim();
+    final name = uri?.queryParameters['pn']?.trim();
 
     if (upiId != null && upiId.isNotEmpty) {
       return _ParsedQr(
-        name: (name == null || name.isEmpty) ? 'UPI Receiver' : name,
+        name: name?.isNotEmpty == true ? name! : 'UPI Receiver',
         upiId: upiId,
       );
     }
-
-    return _ParsedQr(name: 'UPI Receiver', upiId: value);
   }
+
+  // EMV Merchant QR
+  if (_looksLikeEmvQr(value)) {
+    return _parseEmvQr(value);
+  }
+
+  // Generic fallback
+  final upiMatch = RegExp(
+    r'[A-Za-z0-9._-]+@[A-Za-z0-9._-]+',
+  ).firstMatch(value);
+
+  if (upiMatch != null) {
+    return _ParsedQr(
+      name: 'UPI Receiver',
+      upiId: upiMatch.group(0)!,
+    );
+  }
+
+  return null;
+}
+
+
+
+//old pareser
+  // _ParsedQr? _parseQr(String raw) {
+  //   final value = raw.trim();
+  //   if (value.isEmpty) {
+  //     return null;
+  //   }
+
+  //   if (value.startsWith('upi://pay')) {
+  //     final uri = Uri.tryParse(value);
+  //     final upiId = uri?.queryParameters['pa']?.trim();
+  //     final name = uri?.queryParameters['pn']?.trim();
+  //     if (upiId != null && upiId.isNotEmpty) {
+  //       return _ParsedQr(
+  //         name: (name == null || name.isEmpty) ? 'UPI Receiver' : name,
+  //         upiId: upiId,
+  //       );
+  //     }
+  //   }
+
+  //   final byLine = value.split('\n');
+  //   String? name;
+  //   String? upiId;
+  //   for (final line in byLine) {
+  //     final normalized = line.trim();
+  //     if (normalized.contains('@') && upiId == null) {
+  //       upiId = normalized;
+  //     }
+  //     if (normalized.toLowerCase().startsWith('name:')) {
+  //       name = normalized.split(':').skip(1).join(':').trim();
+  //     }
+  //     if (normalized.toLowerCase().startsWith('upi:')) {
+  //       upiId = normalized.split(':').skip(1).join(':').trim();
+  //     }
+  //   }
+
+  //   if (upiId != null && upiId.isNotEmpty) {
+  //     return _ParsedQr(
+  //       name: (name == null || name.isEmpty) ? 'UPI Receiver' : name,
+  //       upiId: upiId,
+  //     );
+  //   }
+
+  //   return _ParsedQr(name: 'UPI Receiver', upiId: value);
+  // }
+
+
+
+bool _looksLikeEmvQr(String value) {
+  return value.startsWith('000201');
+}
+
+_ParsedQr? _parseEmvQr(String raw) {
+  final tags = _parseEmvTags(raw);
+
+  final merchantName =
+      tags['59']?.trim().isNotEmpty == true
+          ? tags['59']!.trim()
+          : 'UPI Receiver';
+
+  String? upiId;
+
+  for (final value in tags.values) {
+    final match = RegExp(
+      r'[A-Za-z0-9._-]+@[A-Za-z0-9._-]+',
+    ).firstMatch(value);
+
+    if (match != null) {
+      upiId = match.group(0);
+      break;
+    }
+  }
+
+  if (upiId == null || upiId.isEmpty) {
+    return null;
+  }
+
+  return _ParsedQr(
+    name: merchantName,
+    upiId: upiId,
+  );
+}
+
+Map<String, String> _parseEmvTags(String data) {
+  final tags = <String, String>{};
+
+  int index = 0;
+
+  while (index + 4 <= data.length) {
+    final tag = data.substring(index, index + 2);
+
+    final length = int.tryParse(
+      data.substring(index + 2, index + 4),
+    );
+
+    if (length == null) {
+      break;
+    }
+
+    final start = index + 4;
+    final end = start + length;
+
+    if (end > data.length) {
+      break;
+    }
+
+    tags[tag] = data.substring(start, end);
+
+    index = end;
+  }
+
+  return tags;
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -291,11 +407,14 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
           if (showScanner)
             MobileScanner(
               controller: _scannerController,
-              onDetect: (capture) {
-                final value = capture.barcodes.first.rawValue;
-                if (value != null) {
-                  _handleCode(value);
-                }
+              onDetect: (capture) {for (final barcode in capture.barcodes) {
+  final value = barcode.rawValue;
+
+  if (value != null && value.isNotEmpty) {
+    _handleCode(value);
+    break;
+  }
+}
               },
             )
           else
